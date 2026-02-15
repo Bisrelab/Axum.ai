@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>axum.ai | Bisre Lab Core</title>
+    <style>
+        /* PHANTOM BLACK & INNOVATION BLUE THEME */
+        body { background-color: #050505; color: #ffffff; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        #chat-container { width: 95%; max-width: 500px; height: 90vh; background: #0f0f0f; border: 1px solid #1e3a8a; border-radius: 20px; display: flex; flex-direction: column; box-shadow: 0 0 40px rgba(30, 58, 138, 0.5); }
+        #chat-header { padding: 20px; background: #1e3a8a; color: #fff; font-weight: 800; border-radius: 20px 20px 0 0; text-align: center; letter-spacing: 2px; text-transform: uppercase; font-size: 1.2rem; }
+        #chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
+        .user-msg { background: #1e1e1e; align-self: flex-end; padding: 12px 16px; border-radius: 15px 15px 0 15px; border-right: 4px solid #3b82f6; max-width: 80%; font-size: 14px; line-height: 1.5; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); }
+        .ai-msg { background: #171717; align-self: flex-start; padding: 12px 16px; border-radius: 15px 15px 15px 0; border-left: 4px solid #1e3a8a; max-width: 80%; font-size: 14px; line-height: 1.5; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); }
+        #input-area { padding: 20px; display: flex; gap: 10px; border-top: 1px solid #222; background: #0f0f0f; border-radius: 0 0 20px 20px; }
+        input { flex: 1; background: #1a1a1a; border: 1px solid #333; color: white; padding: 12px; border-radius: 10px; outline: none; transition: 0.3s; font-size: 16px; }
+        input:focus { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+        button { background: #1e3a8a; color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #2563eb; transform: scale(1.05); }
+        #adastra-footer { text-align: center; padding: 10px; background: #050505; border-top: 1px solid #1e3a8a; font-size: 11px; border-radius: 0 0 20px 20px; }
+        .ad-link { color: #3b82f6; text-decoration: none; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+        
+        /* SCROLLBAR STYLING */
+        #chat-box::-webkit-scrollbar { width: 5px; }
+        #chat-box::-webkit-scrollbar-track { background: #0f0f0f; }
+        #chat-box::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="chat-container">
+        <div id="chat-header">AXUM.AI CORE</div>
+        <div id="chat-box">
+            <div class="ai-msg"><b>axum.ai:</b> Core systems active. Bisre Lab online. How shall we rewrite history today?</div>
+        </div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Initiate command..." onkeypress="if(event.key==='Enter')sendMessage()">
+            <button onclick="sendMessage()">SEND</button>
+        </div>
+        <div id="adastra-footer">
+            <a href="PASTE_LINK_HERE" id="ad-anchor" class="ad-link" target="_blank">PARTNERED WITH ADASTRA</a>
+        </div>
+    </div>
+
+    <script>
+        // --- BISRE LAB CONFIGURATION ---
+        // 1. Enter your Gemini API Key below
+        const API_KEY = "PASTE_YOUR_API_KEY_HERE"; 
+        
+        // 2. Enter your Adastra Monetization Link below
+        const ADASTRA_LINK = "AIzaSyAMYJdqb7sdoSEFQHGj-4FNTM_kTo6EHUk";
+
+        // Connect the link to the footer
+        document.getElementById('ad-anchor').href = ADASTRA_LINK;
+
+        const URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY;
+
+        async function sendMessage() {
+            const input = document.getElementById("user-input");
+            const chatBox = document.getElementById("chat-box");
+            const text = input.value.trim();
+            
+            if (!text) return;
+
+            // Display User Message
+            chatBox.innerHTML += `<div class="user-msg"><b>You:</b> ${text}</div>`;
+            input.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch(URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: text }] }],
+                        systemInstruction: {
+                            parts: [{ text: "You are axum.ai, the core AI for Bisre Lab. You focus on innovation, 10 Cubesats, and the Bisre Phone. You are witty, grounded, and world-class. Never say you are Gemini." }]
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                
+                // Display AI Response
+                chatBox.innerHTML += `<div class="ai-msg"><b>axum.ai:</b> ${aiResponse}</div>`;
+            } catch (err) {
+                chatBox.innerHTML += `<div class="ai-msg" style="color:#ff4444"><b>System Error:</b> Failed to connect to core. Check your API key.</div>`;
+            }
+            
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
