@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axum.ai | Neural Bridge</title>
+    <style>
+        /* Bisre Lab Terminal Theme */
+        body {
+            background-color: #0d0d0d;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #chat-container {
+            width: 90%;
+            max-width: 600px;
+            height: 70vh;
+            border: 2px solid #00ffcc;
+            box-shadow: 0 0 15px #00ffcc;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0, 255, 204, 0.05);
+        }
+        #chat-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+        .message { margin-bottom: 15px; line-height: 1.4; }
+        .user { color: #ffffff; text-decoration: underline; }
+        .ai { color: #00ffcc; font-weight: bold; }
+        
+        .input-area { display: flex; gap: 10px; }
+        input {
+            flex-grow: 1;
+            background: #1a1a1a;
+            border: 1px solid #00ffcc;
+            color: #00ffcc;
+            padding: 10px;
+            outline: none;
+        }
+        button {
+            background: #00ffcc;
+            color: #0d0d0d;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #ffffff; }
+    </style>
+</head>
+<body>
+
+    <h2 style="text-shadow: 0 0 10px #00ffcc;">AXUM.AI NEURAL BRIDGE v1.0</h2>
+
+    <div id="chat-container">
+        <div id="chat-box">
+            <div class="message ai">System: Neural Bridge Active. Awaiting input...</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Type a command..." onkeypress="handleEnter(event)">
+            <button onclick="sendMessage()">SEND</button>
+        </div>
+    </div>
+
+    <script>
+        // REPLACE THE TEXT BELOW WITH YOUR NEW API KEY
+        const API_KEY "AIzaSyCfNNFTBqDmJVJUx2zyKCQJK-SpKYzc8rs";
+        const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        async function sendMessage() {
+            const inputField = document.getElementById("user-input");
+            const chatBox = document.getElementById("chat-box");
+            const userText = inputField.value.trim();
+
+            if (!userText) return;
+
+            // Show User Message
+            chatBox.innerHTML += `<div class="message"><span class="user">User</span>: ${userText}</div>`;
+            inputField.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch(URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: userText }] }]
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    const aiText = data.candidates[0].content.parts[0].text;
+                    chatBox.innerHTML += `<div class="message"><span class="ai">Axum.ai</span>: ${aiText}</div>`;
+                } else {
+                    throw new Error("Invalid Response");
+                }
+
+            } catch (error) {
+                chatBox.innerHTML += `<div class="message" style="color: #ff4444;">System Error: Connection Refused. Check API Restriction.</div>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
